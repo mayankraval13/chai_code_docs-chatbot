@@ -155,13 +155,14 @@
         const data = await res.json();
         loadingDiv.remove();
 
-        const reply = data.response?.content || "❌ Sorry, no response";
-        let botReply = reply;
+        const content = data.content || "❌ Sorry, no response";
+        let botReply = content;
 
-        if (data.response?.url) {
-          const link = `<a class="source-link" href="${data.response.url}" target="_blank">📄 View Source</a>`;
-          botReply += link;
+        if (data.url) {
+        const link = `<a class="source-link" href="${data.url}" target="_blank">📄 View Source</a>`;
+        botReply += link;
         }
+
 
         addMessage(botReply, 'bot');
       } catch (err) {
