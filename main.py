@@ -54,7 +54,7 @@ async def serve_index():
     return FileResponse("public/index.html")
 
 # Chat endpoint
-@app.post("/public/chat")
+@app.post("/chat")
 async def chat(request: Request):
     data = await request.json()
     query = data.get("query", "")
