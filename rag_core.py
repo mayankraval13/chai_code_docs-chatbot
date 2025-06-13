@@ -13,7 +13,7 @@ from qdrant_client.http.models import Distance, VectorParams
 load_dotenv()
 client = OpenAI()
 
-# Initialize Qdrant client for collection check
+# Qdrant client for collection check 
 qdrant_host = os.getenv("QDRANT_HOST")
 qdrant_api_key = os.getenv("QDRANT_API_KEY")
 collection_name = "chai_code_docs"
@@ -23,14 +23,14 @@ qdrant_client = QdrantClient(
     api_key=qdrant_api_key
 )
 
-# Create the collection if it doesn't exist
+# Have to Create the collection if it doesn't exist
 if collection_name not in [c.name for c in qdrant_client.get_collections().collections]:
     qdrant_client.create_collection(
         collection_name=collection_name,
         vectors_config=VectorParams(size=3072, distance=Distance.COSINE)
     )
 
-# Now initialize the LangChain wrapper
+# Now have to initialize the LangChain wrapper
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 vector_db = QdrantVectorStore(
     client=qdrant_client,
