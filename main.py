@@ -33,20 +33,25 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from rag_core import get_answer
-
+from fastapi.responses import FileResponse
 app = FastAPI()
 
 # Enable CORS for frontend JS
+
 app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # or specify your frontend domain
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+CORSMiddleware,
+allow_origins=[""], # You can restrict this to your domain
+allow_credentials=True,
+allow_methods=[""],
+allow_headers=["*"],
 )
 
 # Serve static HTML/JS/CSS from /public
-app.mount("/", StaticFiles(directory="public", html=True), name="public")
+app.mount("/public", StaticFiles(directory="public", html=True), name="public")
+
+@app.get("/")
+async def serve_index():
+    return FileResponse("public/index.html")
 
 # Chat endpoint
 @app.post("/chat")
