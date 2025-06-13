@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ask AI</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    #chat-box {
+      flex-grow: 1;
+      padding: 16px 24px;
+      overflow-y: auto;
+      background-color: #1e1e1e;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message {
+      max-width: 75%;
+      margin-bottom: 12px;
+      padding: 12px 16px;
+      border-radius: 16px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      align-self: flex-end;
+      background-color: #007aff;
+      color: #fff;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+      border-bottom-left-radius: 0;
+    }
+
+    .source-link {
+      display: block;
+      margin-top: 6px;
+      font-size: 13px;
+      color: #a0c4ff;
+      text-decoration: none;
+    }
+
+    #input-container {
+      display: flex;
+      border-top: 1px solid #333;
+      background-color: #1e1e1e;
+    }
+
+    #user-input {
+      flex-grow: 1;
+      padding: 14px;
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+      border: none;
+      font-size: 16px;
+      outline: none;
+    }
+
+    #user-input::placeholder {
+      color: #aaa;
+    }
+
+    #send-button {
+      background-color: #007aff;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+
+    #send-button:hover {
+      background-color: #006ae6;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #444;
+      border-radius: 3px;
+    }
+
+    .typing {
+      font-style: italic;
+      opacity: 0.7;
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-box"></div>
+
+  <div id="input-container">
+    <input type="text" id="user-input" placeholder="Ask your question..." />
+    <button id="send-button">Send</button>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const input = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+
+    function addMessage(content, type) {
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      div.innerHTML = content;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+      return div;
+    }
+
+    async function sendMessage() {
+      const question = input.value.trim();
+      if (!question) return;
+
+      addMessage(question, 'user');
+      input.value = '';
+      input.focus();
+
+      const loadingDiv = addMessage('AI is typing...', 'bot');
+      loadingDiv.classList.add('typing');
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: question })
+        });
+
+        const data = await res.json();
+        loadingDiv.remove();
+
+        const reply = data.response?.content || "❌ Sorry, no response";
+        let botReply = reply;
+
+        if (data.response?.url) {
+          const link = `<a class="source-link" href="${data.response.url}" target="_blank">📄 View Source</a>`;
+          botReply += link;
+        }
+
+        addMessage(botReply, 'bot');
+      } catch (err) {
+        loadingDiv.remove();
+        addMessage("❌ Network error", 'bot');
+        console.error(err);
+      }
+    }
+
+    sendButton.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>

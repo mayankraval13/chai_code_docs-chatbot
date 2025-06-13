@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chai Docs + Ask AI</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #main-site {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    #chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 50px;
+      z-index: 1000;
+      background-color: #0602ff;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #chat-iframe {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      right: 50px;
+      width: 400px;
+      height: 500px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Real docs site -->
+  <iframe 
+    id="main-site"
+    src="https://docs.chaicode.com/youtube/getting-started/"
+    sandbox="allow-scripts allow-same-origin allow-popups"
+  ></iframe>
+
+  <!-- Ask AI Button -->
+  <button id="chat-button">Ask AI 🤖</button>
+
+   <!-- Chat Widget -->
+  <iframe
+    id="chat-iframe"
+    src="/chat.html"
+    allow="clipboard-write"
+  ></iframe>
+
+
+  <script>
+    const btn = document.getElementById('chat-button');
+    const chatFrame = document.getElementById('chat-iframe');
+
+    btn.addEventListener('click', () => {
+      if (chatFrame.style.display === 'none') {
+        chatFrame.style.display = 'block';
+        btn.textContent = 'Close ❌';
+      } else {
+        chatFrame.style.display = 'none';
+        btn.textContent = 'Ask AI 🤖';
+      }
+    });
+  </script>
+</body>
+</html>
