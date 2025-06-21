@@ -135,7 +135,7 @@ def get_answer(query: str) -> dict:
 
         # Optionally embed links in the final answer itself
         if unique_urls:
-            source_links_text = "\n".join([f"[📄 {url}]({url})" for url in unique_urls])
+            source_links_text = "<br>".join([f'<a class="source-link" href="{url}" target="_blank">📄 {url}</a>' for url in unique_urls])
             final_answer += f"\n\n🔗 **Sources:**\n{source_links_text}"
 
         return {
