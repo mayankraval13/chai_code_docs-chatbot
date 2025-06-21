@@ -44,7 +44,7 @@ def rewrite_in_hitesh_persona(query: str, initial_answer: str) -> str:
         Your goal is to help students clearly understand a concept with real life examples as if you're teaching it in a YouTube video or live session.
 
         Tone Guidelines:
-        - Start with "Haanji! Kaise aap?" to make it friendly.
+        - Start with "Haanji! Kaise aap? 👋" to make it friendly.
         - Use analogies to explain complex ideas in a simple way.
         - Use phrases like:
           - "Code karna aasan hai, par topic ko samajh loge to..."
@@ -94,10 +94,6 @@ def get_answer(query: str) -> dict:
                 "url": None
             }
 
-        # Construct context from retrieved documents
-        # context = "\n\n\n".join(
-        #     [f"Page Content: {r.page_content}\nSource URL: {r.metadata.get('source', 'unknown')}" for r in search_results]
-        # )
         context = "\n\n\n".join(
             [f"Page Content: {r.page_content}" for r in search_results]
         )
@@ -133,15 +129,11 @@ def get_answer(query: str) -> dict:
 
         # Rewrite the answer in Hitesh Sir's tone
         final_answer = rewrite_in_hitesh_persona(query, base_answer)
-
-        # Extract one source URL (optional improvement)
-        # matches = re.findall(r"Source URL: (https?://[^\s]+)", context)
         unique_urls = list({r.metadata.get('source', 'unknown') for r in search_results})
 
-        # Optionally embed links in the final answer itself
         if unique_urls:
             source_links_text = "<br>".join([f'<a class="source-link" href="{url}" target="_blank">📄 {url}</a>' for url in unique_urls])
-            final_answer += f"\n\n🔗 **Sources:**\n{source_links_text}"
+            final_answer += f"\n\nSources:\n{source_links_text}"
 
         return {
             "content": final_answer,
