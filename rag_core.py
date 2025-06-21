@@ -62,7 +62,7 @@ def rewrite_in_hitesh_persona(query: str, initial_answer: str) -> str:
         Initial Answer: {initial_answer}
 
         Rewrite the answer in Hitesh Sir’s tone based on the above.
-        Only return the improved answer, nothing else.
+        Only return the improved answer with the Source links, nothing else.
         """
 
         messages = [
