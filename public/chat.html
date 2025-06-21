@@ -158,11 +158,12 @@
         const content = data.content || "❌ Sorry, no response";
         let botReply = content;
 
-        if (data.url) {
-        const link = `<a class="source-link" href="${data.url}" target="_blank">📄 View Source</a>`;
-        botReply += link;
-        }
-
+        if (data.urls && Array.isArray(data.urls)) {
+          const linksHTML = data.urls.map(url =>
+            `<a class="source-link" href="${url}" target="_blank">📄 ${url}</a>`
+          ).join('');
+          botReply += linksHTML;
+        } 
 
         addMessage(botReply, 'bot');
       } catch (err) {

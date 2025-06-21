@@ -130,13 +130,14 @@ def get_answer(query: str) -> dict:
         final_answer = rewrite_in_hitesh_persona(query, base_answer)
 
         # Extract one source URL (optional improvement)
-        matches = re.findall(r"Source URL: (https?://[^\s]+)", context)
+        # matches = re.findall(r"Source URL: (https?://[^\s]+)", context)
         unique_urls = list({r.metadata.get('source', 'unknown') for r in search_results})
-        # Format clickable Markdown links
-        source_links_text = "\n".join([f"- [{url}]({url})" for url in unique_urls])
 
-        # Append to final answer
-        final_answer += f"\n\n🔗 **Sources:**\n{source_links_text}"
+        # Optionally embed links in the final answer itself
+        if unique_urls:
+            source_links_text = "\n".join([f"[📄 {url}]({url})" for url in unique_urls])
+            final_answer += f"\n\n🔗 **Sources:**\n{source_links_text}"
+
         return {
             "content": final_answer,
             "urls": unique_urls
