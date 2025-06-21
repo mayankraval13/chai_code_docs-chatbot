@@ -16,7 +16,7 @@ client = OpenAI()
 # Qdrant client for collection check 
 qdrant_host = os.getenv("QDRANT_HOST")
 qdrant_api_key = os.getenv("QDRANT_API_KEY")
-collection_name = "chai_code_docs"
+collection_name = "chai_code_docs_test_1"
 
 qdrant_client = QdrantClient(
     url=qdrant_host,
