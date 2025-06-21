@@ -111,6 +111,8 @@ def get_answer(query: str) -> dict:
             "content": "Your helpful answer goes here with references to page numbers or sources."
         }}
 
+        Dont provide "Source:" because it is getting appended in the final answer!
+        
         Context:
         {context}
         """
