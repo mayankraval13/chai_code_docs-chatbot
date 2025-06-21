@@ -95,8 +95,11 @@ def get_answer(query: str) -> dict:
             }
 
         # Construct context from retrieved documents
+        # context = "\n\n\n".join(
+        #     [f"Page Content: {r.page_content}\nSource URL: {r.metadata.get('source', 'unknown')}" for r in search_results]
+        # )
         context = "\n\n\n".join(
-            [f"Page Content: {r.page_content}\nSource URL: {r.metadata.get('source', 'unknown')}" for r in search_results]
+            [f"Page Content: {r.page_content}" for r in search_results]
         )
 
         SYSTEM_PROMPT = f"""
