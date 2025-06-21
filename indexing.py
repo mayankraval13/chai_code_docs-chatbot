@@ -48,8 +48,8 @@ text_splitter = RecursiveCharacterTextSplitter(
 )
 split_docs = text_splitter.split_documents(documents=docs)
 
-for i, doc in enumerate(split_docs):
-    doc.metadata["source"] = f"{doc.metadata.get('source', 'unknown')}#{i}"
+for doc in split_docs:
+    doc.metadata["source"] = doc.metadata.get('source', 'unknown').split("#")[0]
 
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 
@@ -60,7 +60,7 @@ def index_documents():
         documents=split_docs,
         url=os.getenv("QDRANT_HOST"),
         api_key=os.getenv("QDRANT_API_KEY"), 
-        collection_name="chai_code_docs_test_1",
+        collection_name="chai_code_docs_final",
         embedding=embedding_model,
         batch_size=32
     )
