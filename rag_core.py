@@ -131,7 +131,12 @@ def get_answer(query: str) -> dict:
 
         # Extract one source URL (optional improvement)
         matches = re.findall(r"Source URL: (https?://[^\s]+)", context)
-        unique_urls = list(set(matches))  # Remove duplicates, if any
+        unique_urls = list({r.metadata.get('source', 'unknown') for r in search_results})
+        # Format clickable Markdown links
+        source_links_text = "\n".join([f"- [{url}]({url})" for url in unique_urls])
+
+        # Append to final answer
+        final_answer += f"\n\n🔗 **Sources:**\n{source_links_text}"
         return {
             "content": final_answer,
             "urls": unique_urls
