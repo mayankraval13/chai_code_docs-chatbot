@@ -23,13 +23,6 @@ qdrant_client = QdrantClient(
     api_key=qdrant_api_key
 )
 
-# Have to Create the collection if it doesn't exist
-if collection_name not in [c.name for c in qdrant_client.get_collections().collections]:
-    qdrant_client.create_collection(
-        collection_name=collection_name,
-        vectors_config=VectorParams(size=3072, distance=Distance.COSINE)
-    )
-
 # Now have to initialize the LangChain wrapper
 embedding_model = OpenAIEmbeddings(model="text-embedding-3-large")
 vector_db = QdrantVectorStore(
@@ -38,7 +31,60 @@ vector_db = QdrantVectorStore(
     embedding=embedding_model
 )
 
+
+def rewrite_in_hitesh_persona(query: str, initial_answer: str) -> str:
+    """
+    Rewrites the assistant's response in Hitesh Sir's teaching tone.
+    """
+    try:
+        persona_prompt = f"""
+        Haanji! Kaise aap? 👋
+
+        You are now speaking like *Hitesh Sir*, a beloved Indian educator known for his warm energy, practical coding tutorials, and humorous analogies.
+        Your goal is to help students clearly understand a concept with real life examples as if you're teaching it in a YouTube video or live session.
+
+        Tone Guidelines:
+        - Start with "Haanji! Kaise aap?" to make it friendly.
+        - Use analogies to explain complex ideas in a simple way.
+        - Use phrases like:
+          - "Code karna aasan hai, par topic ko samajh loge to..."
+          - "Chai pite raho aur questions puchte raho!"
+          - "Ek kaam karo..."
+        - Be supportive, slightly humorous, and very clear.
+        - Address the learner directly as if you’re in a live class.
+
+        Examples:
+        Don’t say: “To authenticate, use the following method.”
+        Do say: “Ek kaam karo – `supabase.auth.signIn()` use karo. Ye bilkul waise hi hai jaise tum Instagram login karte ho.”
+
+        Original Query: {query}
+
+        Initial Answer: {initial_answer}
+
+        Rewrite the answer in Hitesh Sir’s tone based on the above.
+        Only return the improved answer, nothing else.
+        """
+
+        messages = [
+            {"role": "system", "content": persona_prompt}
+        ]
+
+        response = client.chat.completions.create(
+            model="gpt-4.1",
+            messages=messages
+        )
+
+        return response.choices[0].message.content.strip()
+
+    except Exception as e:
+        logging.warning("Persona rewriting failed: %s", str(e))
+        return initial_answer
+
+
 def get_answer(query: str) -> dict:
+    """
+    Returns an answer to the query using vector search and persona rephrasing.
+    """
     try:
         search_results = vector_db.similarity_search(query=query)
 
@@ -48,6 +94,7 @@ def get_answer(query: str) -> dict:
                 "url": None
             }
 
+        # Construct context from retrieved documents
         context = "\n\n\n".join(
             [f"Page Content: {r.page_content}\nSource URL: {r.metadata.get('source', 'unknown')}" for r in search_results]
         )
@@ -77,14 +124,17 @@ def get_answer(query: str) -> dict:
         )
 
         parsed = json.loads(response.choices[0].message.content)
-        content = parsed.get("content", "Sorry, I couldn't find an answer.")
+        base_answer = parsed.get("content", "Sorry, I couldn't find an answer.")
 
-        match = re.search(r"Source URL: (https?://[^\s]+)", context)
-        source_url = match.group(1) if match else None
+        # Rewrite the answer in Hitesh Sir's tone
+        final_answer = rewrite_in_hitesh_persona(query, base_answer)
 
+        # Extract one source URL (optional improvement)
+        matches = re.findall(r"Source URL: (https?://[^\s]+)", context)
+        unique_urls = list(set(matches))  # Remove duplicates, if any
         return {
-            "content": content,
-            "url": source_url
+            "content": final_answer,
+            "urls": unique_urls
         }
 
     except Exception as e:
