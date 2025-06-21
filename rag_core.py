@@ -91,7 +91,6 @@ def get_answer(query: str) -> dict:
         if not search_results:
             return {
                 "content": "❌ I couldn't find any relevant documents to answer your query.",
-                "url": None
             }
 
         # Construct context from retrieved documents
